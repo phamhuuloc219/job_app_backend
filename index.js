@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const jobRouter = require('./routers/job');
 const bodyParser = require('body-parser');
+const path = require('path');
 
 dotenv.config();
 
@@ -16,6 +17,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/api/jobs', jobRouter);
+
+// Phục vụ file tĩnh từ thư mục "public"
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Điều hướng tất cả request khác về index.html (cho frontend SPA)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 app.listen(process.env.PORT || port, () => {
     console.log(`Server is running on port ${process.env.PORT}`)
