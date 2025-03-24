@@ -13,7 +13,7 @@ module.exports = {
                 { $set: req.body },
                 { new: true }
             );
-            const {password, __v, createAt, ...orthers} = this.updateUser._doc; 
+            const {password, __v, createAt, ...orthers} = updateUser._doc; 
             res.status(200).json({ ...orthers });
         } catch(e){
             res.status(500).json({ message: e.message });
