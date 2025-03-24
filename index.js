@@ -4,6 +4,7 @@ const port = 3000
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const jobRouter = require('./routers/job');
+const authRouter = require('./routers/auth');
 const bodyParser = require('body-parser');
 const path = require('path');
 
@@ -17,6 +18,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/api/jobs', jobRouter);
+
+app.use('/api/users', authRouter);
 
 // Phục vụ file tĩnh từ thư mục "public"
 app.use(express.static(path.join(__dirname, 'public')));

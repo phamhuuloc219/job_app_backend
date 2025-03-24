@@ -11,7 +11,11 @@ const JobSchema = new mongoose.Schema({
     hiring: {type: Boolean, required: true, default: true},
     requirement: {type: Array, required: true},
     imageUrl: {type: String, required: true},
-    companyId: {type: String, required: true},
+    companyId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
 }, {timestamps: true});
 
 module.exports = mongoose.model('Job', JobSchema);
