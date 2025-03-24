@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const jobRouter = require('./routers/job');
 const authRouter = require('./routers/auth');
 const userRouter = require('./routers/user');
+const bookmarkRouter = require('./routers/bookmark');
 const bodyParser = require('body-parser');
 const path = require('path');
 
@@ -23,6 +24,8 @@ app.use('/api/jobs', jobRouter);
 app.use('/api/', authRouter);
 
 app.use('/api/users', userRouter);
+
+app.use('/api/bookmarks', bookmarkRouter);
 
 // Phục vụ file tĩnh từ thư mục "public"
 app.use(express.static(path.join(__dirname, 'public')));
