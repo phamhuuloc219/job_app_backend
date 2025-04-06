@@ -12,6 +12,13 @@ const path = require('path');
 
 dotenv.config();
 
+const admin = require('firebase-admin');
+const serviceAccount = require("./ntu-job-firebase-adminsdk-fbsvc-bf7b0d080f.json");
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
+
 mongoose.connect(process.env.MONGO_URL)
     .then(()=> console.log('connect'))
     .catch(err => console.log(err));
