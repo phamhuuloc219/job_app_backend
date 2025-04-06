@@ -13,11 +13,12 @@ const path = require('path');
 dotenv.config();
 
 const admin = require('firebase-admin');
-// const serviceAccount = require("./ntu-job-firebase-adminsdk-fbsvc-bf7b0d080f.json");
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+
+const serviceAccountJson = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT, "base64").toString("utf-8");
+const serviceAccount = JSON.parse(serviceAccountJson);
 
 admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert(serviceAccount),
 });
 
 mongoose.connect(process.env.MONGO_URL)
