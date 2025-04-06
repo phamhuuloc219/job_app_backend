@@ -73,7 +73,7 @@ module.exports = {
 
         try {
             const user = await User.findOne({ email: req.body.email },
-                { __v: 0, createdAt: 0, updatedAt: 0, skills: 0, email: 0 });
+                { __v: 0, createdAt: 0, updatedAt: 0, skills: 0, email: 0, updated: 0, isCompany: 0 });          
 
             if (!user) {
                 return res.status(401).json({ message: "User not found" });
