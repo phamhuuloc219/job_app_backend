@@ -13,7 +13,8 @@ const path = require('path');
 dotenv.config();
 
 const admin = require('firebase-admin');
-const serviceAccount = require("./ntu-job-firebase-adminsdk-fbsvc-bf7b0d080f.json");
+// const serviceAccount = require("./ntu-job-firebase-adminsdk-fbsvc-bf7b0d080f.json");
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
