@@ -1,43 +1,60 @@
-const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
 const verifyToken = (req, res, next) => {
-    const authHeader = req.headers.token;
+    const authHeader = req.headers.authorization;
     if (authHeader) {
         const token = authHeader.split(" ")[1];
 
         jwt.verify(token, process.env.JWT_SEC, async (err, user) => {
-            if(err) res.status(403).json("Token is not valid!");
+            if(err){
+                return res.status(401).json({message:"Token is invalid: "});
+            }
 
             req.user = user;
 
-            console.log(user);
-
             next();
         })
-    } else {
-        return res.status(401).json("You are not authenticated!");
     }
 };
 
-const verifyAndAuthorization = (req, res, next) => {
+const verifyAndAuth = (req, res, next) => {
     verifyToken(req, res, () => {
-        if (req.user.id === req.params.id) {
+        if (req.user.id || req.user.isAdmin) {
             next();
         } else{
-            res.status(403).json("You are retricted from performing this operation!");
+            res.status(403).json({message : "You are not authourized to access"});
         }
     });
 }
 
-const verifyAndAdmin = (req, res, next) => {
+const verifyCompany = (req, res, next) => {
     verifyToken(req, res, () => {
-        if (req.user.isAdmin) {
+        if (req.user.isCompany || req.user.isAdmin) {
             next();
         } else{
-            res.status(403).json("You are retricted from performing this operation!");
+            res.status(403).json({message : "You are not authourized to access"});
         }
     });
 }
 
-module.exports = {verifyToken, verifyAndAuthorization, verifyAndAdmin};
+// const verifyAndAuthorization = (req, res, next) => {
+//     verifyToken(req, res, () => {
+//         if (req.user.id === req.params.id) {
+//             next();
+//         } else{
+//             res.status(403).json("You are retricted from performing this operation!");
+//         }
+//     });
+// }
+
+// const verifyAndAdmin = (req, res, next) => {
+//     verifyToken(req, res, () => {
+//         if (req.user.isAdmin) {
+//             next();
+//         } else{
+//             res.status(403).json("You are retricted from performing this operation!");
+//         }
+//     });
+// }
+
+module.exports = {verifyToken, verifyAndAuth, verifyCompany};

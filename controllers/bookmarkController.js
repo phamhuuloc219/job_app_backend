@@ -1,20 +1,51 @@
 const Bookmark = require('../models/Bookmark');
+const Job = require('../models/Jobs');
 
 module.exports = {
     createBookmark: async (req, res) => {
-        const newBookmark = new Bookmark(req.body);
+        const jobId = req.body.job;
+        const userId = req.user.id;
+
         try {
-            await newBookmark.save();
-            res.status(201).json("Bookmark successfully created");
+            const job = await Job.findById(jobId);
+            if (!job) {
+                return res.status(400).json({ message: 'Job not found' });
+            }
+            
+            const newBookmark = new Bookmark({ job: jobId, userId: userId });
+            const saveBookmark = await newBookmark.save();
+
+            res.status(200).json({status: true, bookmarkId: saveBookmark._id});
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
     },
 
-    getBookmarks: async (req, res) => {
+    getAllBookmarks: async (req, res) => {
+        const userId = req.user.id;
         try {
-            const bookmarks = await Bookmark.find({userId: req.params.userId});
+            const bookmarks = await Bookmark.find({userId: userId}, {createdAt: 0, updatedAt: 0, __V: 0})
+            .populate({
+                path: 'job',
+                select: "-requirements -description -createdAt -updatedAt -__v"
+            });
             res.status(200).json(bookmarks);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
+
+    getBookmark: async (req, res) => {
+        const jobId = req.params.id;
+        const userId = req.user.id;
+
+        try {
+            const bookmarks = await Bookmark.findOne({userId: userId, job: jobId})
+            
+            if(!bookmarks) {
+                res.status(200).json({status: false, bookmarkId: "none"});
+            }
+            res.status(200).json({status: true, bookmarkId: bookmarks._id});
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
@@ -22,9 +53,10 @@ module.exports = {
 
     deleteBookmark: async (req, res) => {
         const bookmarkId = req.params.id;
+
         try {
             await Bookmark.findByIdAndDelete(bookmarkId);
-            res.status(200).json("Bookmark deleted successfully");
+            res.status(200).json({status: true, message: "Bookmark deleted successfully"});
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
