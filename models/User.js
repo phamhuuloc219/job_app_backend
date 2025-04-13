@@ -10,7 +10,7 @@ const UserSchema = new mongoose.Schema({
     updated: {type: Boolean, default: false},
     isAdmin: {type: Boolean, default: false},
     isCompany: {type: Boolean, default: false},
-    skills: {type: Array, required: false},
+    skills: {type: Boolean, default : false, required: false},
     profile: {
         type: String, 
         required: true, 
