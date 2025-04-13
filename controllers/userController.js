@@ -86,5 +86,72 @@ module.exports = {
         } catch(e){
             res.status(500).json({ message: e.message });
         }
+    },
+
+    addCompany: async (req, res) => {
+        const newCompany = new Company({
+             userId: req.user.id, 
+             uid: req.body.uid, 
+             company: req.body.company, 
+             hq_address: req.body.hq_address, 
+             working_hrs: req.body.working_hrs 
+            });
+        try{
+            await newCompany.save();
+            await User.findByIdAndDelete(req.user.id, { $set: { company: true } });
+            res.status(200).json({status : true});
+        } catch(e){
+            res.status(500).json({ message: e.message });
+        }
+    },
+
+    updateCompany: async (req, res) => {
+        const id = req.params.id;
+        try{
+            const updateCompany = await Company.findByIdAndUpdate(id, {
+                company: req.body.company, 
+                hq_address: req.body.hq_address, 
+                working_hrs: req.body.working_hrs
+            }, { new: true });
+
+            if(!updateCompany) return res.status(400).json({ status: false, message: "Company not found" });
+            
+            res.status(200).json({status : true});
+        } catch(e){
+            res.status(500).json({ message: e.message });
+        }
+    },
+
+    getCompany: async (req, res) => {
+        const uid = req.params.uid;
+        try{
+           const companyData = await Company.find({uid: uid}, {createdAt: 0, updatedAt: 0, __V: 0});
+           
+           const company = companyData[0];
+
+           res.status(200).json(company);
+        } catch(e){
+            res.status(500).json({ message: e.message });
+        }
+    },
+
+    getCompanys: async (req, res) => {
+        try{
+           const companys = await User.aggregate([
+                {$match: {isCompany: true}}, 
+                {$sample: {size: 7}},
+                {
+                    $project: {
+                        _id: 0, 
+                        username: 1, 
+                        profile: 1,
+                        uid: 1
+                    }
+                }
+            ]);
+           res.status(200).json(companys);
+        } catch(e){
+            res.status(500).json({ message: e.message });
+        }
     }
 }

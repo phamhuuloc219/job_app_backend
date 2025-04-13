@@ -19,4 +19,16 @@ router.get('/skills', verifyAndAuth,  userController.getSkills);
 // delete skill
 router.delete('/skills/:id', verifyAndAuth,  userController.deleteSkills);
 
+// add company
+router.post('/companys', verifyAndAuth,  userController.addCompany);
+
+//update company
+router.put('/companys/:id', verifyAndAuth,  userController.updateCompany);
+
+// get single company
+router.get('/companys/:uid', verifyAndAuth,  userController.getCompany);
+
+// get multiple companys
+router.get('/companys', verifyAndAuth,  userController.getCompanys);
+
 module.exports = router;
