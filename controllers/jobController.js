@@ -94,4 +94,16 @@ module.exports = {
             res.status(500).json({ message: error.message });
         }
     },
+
+    getCompanyJobs: async (req, res) => {
+        const uid = req.params.uid;
+        try {
+            const companyJobs = await Job.find({companyId: uid}, {createdAt: 0, updatedAt: 0, __V: 0}).sort({createdAt: -1});
+
+            res.status(200).json(companyJobs);
+        }
+        catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    }
 }
