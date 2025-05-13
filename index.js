@@ -7,6 +7,8 @@ const jobRouter = require('./routers/job');
 const authRouter = require('./routers/auth');
 const userRouter = require('./routers/user');
 const bookmarkRouter = require('./routers/bookmark');
+const chatRouter = require('./routers/chat');
+const messageRouter = require('./routers/message');
 const bodyParser = require('body-parser');
 const path = require('path');
 
@@ -36,6 +38,10 @@ app.use('/api/users', userRouter);
 
 app.use('/api/bookmarks', bookmarkRouter);
 
+app.use('/api/chats', chatRouter);
+
+app.use('/api/messages', messageRouter);
+
 // Phục vụ file tĩnh từ thư mục "public"
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -44,6 +50,63 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(process.env.PORT || port, () => {
+const server = app.listen(process.env.PORT || port, () => {
     console.log(`Server is running on port ${process.env.PORT}`)
+})
+
+const io = require('socket.io')(server, {
+    pingTimeout: 60000,
+    cors: {
+        origin: "https://jobappbackend-production-5db4.up.railway.app/"
+    }
+});
+
+io.on("connection", (socket) => {
+    console.log("Connected to socket.io");
+
+    socket.on("setup", (userId) => {
+        socket.join(userId);
+        socket.broadcast.emit("online-user", userId);
+        console.log(userId)
+    });
+
+    socket.on("join chat", (room) => {
+        socket.join(room);
+        console.log("User Joined Room: " + room);
+    });
+
+    socket.on("typing", (room) => {
+        console.log("typing")
+        console.log("room")
+        socket.to(room).emit("typing", room)
+    });
+    
+    socket.on("stop typing", (room) => {
+        console.log("stop typing")
+        console.log("room")
+        socket.to(room).emit("stop typing", room)
+    });
+
+    socket.on("new message", (newMessageRecieved) => {
+        var chat = newMessageRecieved.chat;
+        var room = chat._id;
+
+        var sender = newMessageRecieved.sender;
+
+        if(!sender || sender._id) return console.log("sender not defined");
+        
+        var senderId = sender._id;
+        console.log(senderId + "message sender");
+        const users = chat.users;
+        
+        if (!user) return console.log("chat.users not defined");
+
+        socket.to(room).emit("message recieved", newMessageRecieved);
+        socket.to(room).emit("message sent", "new message");
+    });
+
+    socket.off("setup", () => {
+        console.log("USER DISCONNECTED");
+        socket.leave(userId);
+    });
 })
